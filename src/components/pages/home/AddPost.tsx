@@ -2,6 +2,8 @@ import React, { FC, useState } from 'react'
 import { Box, TextField } from '@mui/material'
 import { IPost, TypeSetState } from '../../../types'
 import { users } from '../../layout/sidebar/dataUser'
+import { addDoc, collection } from 'firebase/firestore'
+import { useAuth } from '../../providers/useAuth'
 
 interface IAddPost {
     setPosts: TypeSetState<IPost[]>
@@ -10,17 +12,20 @@ interface IAddPost {
 const AddPost: FC<IAddPost> = ({setPosts}) => {
 
     const [content, setContent] = useState<string>('')
+    const {user, db} = useAuth();
+    const [error, setError] = useState('');
 
-    const addPostHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const addPostHandler = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            setPosts(prev => [
-                {
-                    author: users[0],
+            try {
+                const docRef = await addDoc(collection(db, 'posts'), {
+                    author: user, 
                     content,
-                    createdAt: '5 минут назад',
-                },
-                ...prev
-            ])
+                    createdAt: new Date().toLocaleString()
+                })
+            } catch (e: any) {
+                setError(e);
+            }
 
             setContent('')
         }

@@ -3,11 +3,13 @@ import { IUser, TypeSetState } from "../../types";
 import { Auth, getAuth, onAuthStateChanged } from "firebase/auth";
 import { users } from "../layout/sidebar/dataUser";
 import { useNavigate } from "react-router-dom";
+import { Firestore, getFirestore } from "firebase/firestore";
 
 interface IContext {
     user: IUser | null
     setUser: TypeSetState<IUser | null>
     ga: Auth
+    db: Firestore
 }
 
 interface NodeChildren {
@@ -21,6 +23,7 @@ export const AuthProvider = ({children}: NodeChildren) => {
     const [user, setUser] = useState<IUser | null>(null)
 
     const ga = getAuth()
+    const db = getFirestore();
 
     useEffect(() => {
         const unListen = onAuthStateChanged(ga, authUser => {
@@ -31,7 +34,7 @@ export const AuthProvider = ({children}: NodeChildren) => {
                     name: authUser?.displayName || ''
                 })
             } else {
-                setUser(null)
+                setUser(null);
             }
         })
         
@@ -43,11 +46,12 @@ export const AuthProvider = ({children}: NodeChildren) => {
     const values = useMemo(() => ({
         user,
         setUser,
-        ga
-    }), [user])
+        ga,
+        db
+    }), [user, ga, db])
 
     return (
-        <AuthContext.Provider value={{ user, setUser, ga }}>
+        <AuthContext.Provider value={values}>
             {children}
         </AuthContext.Provider>
     )

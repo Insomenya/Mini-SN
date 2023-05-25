@@ -1,24 +1,37 @@
-import { FC } from 'react'
+import { FC, useState, useEffect } from 'react'
 import { IPost } from '../../../types'
 import { Avatar, Box, Divider, ImageList, ImageListItem } from '@mui/material'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../providers/useAuth'
+import { onSnapshot, doc, collection } from 'firebase/firestore'
+import { initialPosts } from './initialPosts'
+import Card from '../../ui/Card'
 
-interface IPosts {
-    posts: IPost[]
-}
 
-const Posts: FC<IPosts> = ({posts}) => {
+const Posts: FC = () => {
+    const {db} = useAuth();
+    const [error, setError] = useState('');
+    const [posts, setPosts] = useState<IPost[]>(initialPosts)
+
+    useEffect(() => {
+        const unsub = onSnapshot(collection(db, 'posts'), doc => {
+            setPosts([]);
+
+            doc.forEach((d: any) => {
+                setPosts(prev => [...prev, d.data()])
+            });
+        })
+
+        return () => {
+            unsub()
+        }
+    }, []);
+
   return (
     <>
         {posts.map((post, index) => (
-            <Box key={`Post-${index}`} sx={{
-                border: '1px solid #ccc',
-                borderRadius: '10px',
-                padding: 2,
-                marginTop: 5,
-                marginBottom: 2
-            }}>
-                <Link key={post.author._id} to={`/profile/${post.author._id}`} style={{display: 'flex', alignItems: 'center', color: '#111', textDecoration: 'none', marginBottom: 12}}>
+            <Card key={`Post-${index}`}>
+                <Link key={post.author._id} to={`/profile`} style={{display: 'flex', alignItems: 'center', color: '#111', textDecoration: 'none', marginBottom: 12}}>
                     <Box sx={{
                         position: 'relative', 
                         marginRight: 5, 
@@ -52,7 +65,7 @@ const Posts: FC<IPosts> = ({posts}) => {
                         </ImageList>
                     )}
                 </Box>
-            </Box>
+            </Card>
         ))}
     </>
   )

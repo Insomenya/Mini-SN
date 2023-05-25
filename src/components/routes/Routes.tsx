@@ -20,11 +20,7 @@ const Routes: FC = () => {
                             path={route.path}
                             element={
                                 <Layout>
-                                    {route.auth && !user ? (
-                                        <Auth />
-                                    ) : (
-                                        <route.element />
-                                    )}
+                                    {route.auth && !user ? (<Auth />) : (<route.element />)}
                                 </Layout>
                             }
                         />

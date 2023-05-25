@@ -16,7 +16,7 @@ const UserItems: FC = () => {
         backgroundColor: '#f1f7fa'
         }} variant='outlined'>
         {users.map(user => (
-          <Link key={user._id} to={`/profile/${user._id}`} style={{display: 'flex', alignItems: 'center', color: '#111', textDecoration: 'none', marginBottom: 12}}>
+          <Link key={user._id} to={`/profile`} style={{display: 'flex', alignItems: 'center', color: '#111', textDecoration: 'none', marginBottom: 12}}>
             <Box sx={{
               position: 'relative', 
               marginRight: 5, 

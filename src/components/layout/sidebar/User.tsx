@@ -2,9 +2,11 @@ import React, { FC } from 'react'
 import { Avatar, Button, Card, Chip } from '@mui/material'
 import { useAuth } from '../../providers/useAuth'
 import { signOut } from 'firebase/auth'
+import { useNavigate } from 'react-router-dom'
 
 const User: FC = () => {
     const {user, ga} = useAuth()
+    const navigate = useNavigate();
 
   return (
     <Card sx={{
@@ -19,7 +21,7 @@ const User: FC = () => {
             variant='outlined'
             sx={{marginRight: 1}}
         />
-        <Button variant='outlined' onClick={() => signOut(ga)} sx={{height: '30px'}} >Выйти</Button>
+        <Button variant='outlined' onClick={() => { navigate('/auth'); return signOut(ga); }} sx={{height: '30px'}} >Выйти</Button>
     </Card>
   )
 }

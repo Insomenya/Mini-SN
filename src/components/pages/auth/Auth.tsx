@@ -1,7 +1,7 @@
 import { Alert, Button, ButtonGroup, Grid, Paper, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import React, { FC, useEffect, useState } from 'react'
 import { IUserData } from './types'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { useAuth } from '../../providers/useAuth'
 import { useNavigate } from 'react-router-dom'
  
@@ -12,7 +12,8 @@ const Auth:FC = () => {
 
   const [userData, setUserData] = useState<IUserData>({
     email: '',
-    password: ''
+    password: '',
+    name: ''
   } as IUserData)
 
   const [error, setError] = useState<string>('')
@@ -22,8 +23,11 @@ const Auth:FC = () => {
 
     if (isRegForm) {
       try {
-        await createUserWithEmailAndPassword(ga, userData.email, userData.password)
+        const res = await createUserWithEmailAndPassword(ga, userData.email, userData.password)
 
+        await updateProfile(res.user, {
+          displayName: userData.name
+        })
         setError('')
       } catch (error: any) {
         error.message && setError(error.message)
@@ -40,7 +44,8 @@ const Auth:FC = () => {
     
     setUserData({
       email: '',
-      password: ''
+      password: '',
+      name: ''
     })
   }
 
@@ -55,12 +60,24 @@ const Auth:FC = () => {
   return (
     <>
       {error && <Alert severity='error' sx={{marginBottom: 2}}>{error}</Alert>}
-      <Paper variant='outlined' sx={{maxWidth: '400px', padding: '20px 40px', borderRadius: '10px'}}>
+      <Paper variant='outlined' sx={{maxWidth: '400px', padding: '20px 40px', borderRadius: '10px', margin: '0 auto'}}>
         <Typography textAlign='center' variant='h5' gutterBottom>
-          Форма Авторизации
+          Форма {isRegForm ? 'Регистрации' : 'Авторизации'}
         </Typography>
         <Grid display='flex' justifyContent='center' alignItems='center'>
           <form onSubmit={handleLogin}>
+            { isRegForm && 
+            <TextField 
+            required
+            label='Имя' 
+            variant='outlined' 
+            value={userData.name} 
+            onChange={e => setUserData({...userData, name: e.target.value})}
+            InputProps={{
+              sx: {width: '100%'}
+            }}
+            sx={{display: 'block', marginBottom: 2}}
+            /> }
             <TextField 
             required
             type='email' 
